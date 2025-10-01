@@ -5,93 +5,93 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: namaloma <namaloma@learner.42.tech>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/24 09:49:47 by namaloma          #+#    #+#             */
-/*   Updated: 2025/09/27 16:25:53 by namaloma         ###   ########.fr       */
+/*   Created: 2025/10/01 15:56:18 by namaloma          #+#    #+#             */
+/*   Updated: 2025/10/01 17:17:40 by namaloma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <stdlib.h>
+int     ft_isspace(char c);
+int     count_words(char *str);
 
-int	is_separator(char c, char *sep)
+char	*malloc_word(char *str)
 {
-	int	i;
-
+	char *word;
+	int i = 0;
+	while (str[i] && !ft_isspace(str[i]))
+		i++;
+	word = (char *)malloc(sizeof(char) *(i +1));
+	if (!word)
+		return NULL;
 	i = 0;
-	while (sep[i])
-	{
-		if (c == sep[i])
-			return (1);
-		i ++;
-	}
-	return (0);
-}
-
-int	count_word(char *str, char *sep)
-{
-	int	i;
-	int	words;
-
-	i = 0;
-	words = 0;
-	while (str[i])
-	{
-		if (!is_separator(str[i], sep))
-		{
-			words ++;
-			while (str[i] && !is_separator(str[i], sep))
-				i ++;
-		}
-		else
-			i ++;
-	}
-	return (words);
-}
-
-char	*word_splitter(char *str, char *sep)
-{
-	char	*word;
-	int		i;
-
-	i = 0;
-	while (str[i] && !is_separator(str[i], sep))
-		i ++;
-	word = (char *)malloc(sizeof(char) * (i + 1));
-	if (word == NULL)
-		return (NULL);
-	i = 0;
-	while (str[i] && !is_separator(str[i], sep))
+	while (str[i] && !ft_isspace(str[i]))
 	{
 		word[i] = str[i];
 		i ++;
 	}
 	word[i] = '\0';
-	return (word);
+	return word;
 }
-
-char	**ft_split(char *str, char *charset)
+int	ft_isspace(char c)
 {
-	char	**splitted;
-	int		i;
-	int		j;
-
-	i = -1;
-	j = 0;
-	if (str == NULL || charset == NULL)
-		return (NULL);
-	splitted = (char **)malloc(sizeof(char *) * (count_word(str, charset) + 1));
-	if (splitted == NULL)
-		return (NULL);
-	while (str[++i])
+	return ((c >= 9 && c <= 13) || c == ' ');
+}
+int	count_words(char *str)
+{
+	int len = 0;
+	while (*str)
 	{
-		if (!is_separator(str[i], charset))
+		while(*str && ft_isspace(*str))
+		str++;
+		if (*str && !ft_isspace(*str))
 		{
-			splitted[j] = word_splitter(&str[i], charset);
-			if (splitted[j] == NULL)
-				return (NULL);
-			while (str[i] && !is_separator(str[i], charset))
-				i++;
-			j++;
+			len ++;
+			while(*str && !ft_isspace(*str))
+                		str++;
 		}
 	}
-	splitted[j] = NULL;
-	return (splitted);
+	return len;
 }
+
+char	**ft_split(char *str)
+{
+	char	**splitted;
+	splitted = (char **)malloc(sizeof(char *) * (count_words(str) + 1));
+	if (!splitted)
+		return NULL;
+	int i = 0;
+	while (*str)
+	{
+		while (*str && ft_isspace(*str))
+			str++;
+		if (*str && !ft_isspace(*str))
+		{
+			splitted[i] = malloc_word(str);
+			if (!splitted[i])
+				return NULL;
+			i++;
+			while (*str && !ft_isspace(*str))
+				str++;
+		}
+	}
+	splitted[i] = NULL;
+	return splitted;
+
+}
+#include <stdio.h>
+int main (){
+	 char **arr;
+    char *phrase = "   Hello,   Flavio\t Wuensche!  ";
+    arr = ft_split(phrase);
+    if (arr)  // Ensure the split was successful
+    {
+        for (int i = 0; arr[i]; i++)
+            printf("%s\n", arr[i]);
+        // Don't forget to free allocated memory (good practice):
+        for (int i = 0; arr[i]; i++)
+            free(arr[i]);
+        free(arr);
+    }
+    return 0;;
+
+}
+
